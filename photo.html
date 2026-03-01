@@ -38,11 +38,21 @@
         document.getElementById('gallery-title').innerText = member === 'ALL' ? "SAY MY NAME PHOTO" : member + " GALLERY";
         
         const uploadForm = document.getElementById('upload-form');
-        uploadForm.style.display = (member === 'ALL') ? 'none' : 'block';
         
-        loadPhotos(); // 멤버 변경 시 사진 다시 불러오기
+        if (member === 'ALL') {
+            uploadForm.style.display = 'none';
+        } else {
+            uploadForm.style.display = 'block';
+            // [수정 핵심] 선택한 멤버의 배경색을 실시간으로 적용합니다.
+            const bgColor = memberColors[member] || '#fffafb';
+            uploadForm.style.backgroundColor = bgColor; 
+            
+            // 글자색 가독성 조절 (도희처럼 밝은 배경은 검은 글씨로)
+            uploadForm.style.color = (member === 'HITOMI' || member === 'DOHEE' || member === 'SEUNGJOO') ? '#333' : 'white';
+        }
+        
+        loadPhotos(); 
     };
-
     // [사진 업로드] Firebase Storage + Firestore
     window.uploadPhoto = async () => {
         const fileInput = document.getElementById('imageInput');
@@ -127,3 +137,4 @@
         }
     };
 </script>
+
