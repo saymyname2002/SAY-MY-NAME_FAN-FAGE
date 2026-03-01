@@ -213,9 +213,10 @@ function drawStart() {
     } else {
         // 로딩이 완료되었을 때 (클릭 유도)
         ctx.font = "bold 24px Arial";
-        ctx.fillText("클릭 시 게임 스타트❤️", canvas.width / 2, canvas.height / 2);
+        ctx.fillText("클릭 시 게임 스타트😻", canvas.width / 2, canvas.height / 2);
     }
 }
 
 // 초기 호출
+
 drawStart();
