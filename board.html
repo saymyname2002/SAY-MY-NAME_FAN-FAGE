@@ -24,66 +24,79 @@
             <p>SAY MY NAME에게 응원의 한마디를 남겨주세요!</p>
             <div class="board-container">
                 <div class="message-form">
-                    <input type="text" id="nickname" placeholder="닉네임">
-                    <textarea id="message" placeholder="응원 메시지를 입력하세요!"></textarea>
-                    <button onclick="addMessage()">등록하기</button>
+                    <input type="text" id="nicknameInput" placeholder="닉네임">
+                    <textarea id="contentInput" placeholder="응원 메시지를 입력하세요!"></textarea>
+                    <button onclick="sendMessage()">등록하기</button>
                 </div>
-                <div id="message-list" class="message-list"></div>
+                <div id="messageList" class="message-list"></div>
             </div>
         </section>
     </main>
 
-    <script>
-        window.onload = function() { displayMessages(); };
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        function addMessage() {
-            const nickname = document.getElementById('nickname').value || "익명";
-            const message = document.getElementById('message').value;
-            if (!message) { alert("내용을 입력해주세요!"); return; }
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrhP_DPagVEzILp5MftnZXN5m1nJD3qgg",
+            authDomain: "saymyname-fanpage.firebaseapp.com",
+            projectId: "saymyname-fanpage",
+            storageBucket: "saymyname-fanpage.firebasestorage.app",
+            messagingSenderId: "613226162204",
+            appId: "1:613226162204:web:641483775d9fad18cf57d9",
+            measurementId: "G-XTHQ805VV9"
+        };
 
-            const newMessage = {
-                id: Date.now(),
-                name: nickname,
-                text: message,
-                date: new Date().toLocaleString()
-            };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const boardCol = collection(db, "messages");
 
-            let messages = JSON.parse(localStorage.getItem('saymyname_messages')) || [];
-            messages.unshift(newMessage);
-            localStorage.setItem('saymyname_messages', JSON.stringify(messages));
+        // [쓰기] 메시지 전송 함수
+        window.sendMessage = async function() {
+            const nickname = document.getElementById('nicknameInput').value;
+            const content = document.getElementById('contentInput').value;
 
-            document.getElementById('nickname').value = '';
-            document.getElementById('message').value = '';
-            displayMessages();
-        }
-        // [추가] 메시지 삭제 함수
-        function deleteMessage(id) {
-            if (!confirm("메시지를 삭제하시겠습니까?")) return;
+            if(!nickname || !content) return alert("닉네임과 내용을 입력해주세요!");
 
-            let messages = JSON.parse(localStorage.getItem('saymyname_messages')) || [];
-            // 클릭한 ID와 일치하지 않는 메시지들만 남깁니다 (필터링)
-            messages = messages.filter(msg => msg.id !== id);
-    
-            localStorage.setItem('saymyname_messages', JSON.stringify(messages));
-            displayMessages(); // 화면 갱신
-}            
-        function displayMessages() {
-            const list = document.getElementById('message-list');
-            const messages = JSON.parse(localStorage.getItem('saymyname_messages')) || [];
-    
-            // [수정] 삭제 버튼(<button>) 코드를 추가했습니다.
-            list.innerHTML = messages.map(msg => `
-                <div class="message-card">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <strong>${msg.name}</strong> <small>${msg.date}</small>
+            try {
+                await addDoc(boardCol, {
+                    nickname: nickname,
+                    content: content,
+                    timestamp: serverTimestamp()
+                });
+                
+                document.getElementById('nicknameInput').value = "";
+                document.getElementById('contentInput').value = "";
+                alert("게시글이 등록되었습니다!");
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                alert("등록에 실패했습니다.");
+            }
+        };
+
+        // [읽기] 실시간 데이터 감시
+        const q = query(boardCol, orderBy("timestamp", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const list = document.getElementById('messageList');
+            if(!list) return;
+
+            list.innerHTML = ""; 
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : "방금 전";
+                
+                list.innerHTML += `
+                    <div class="message-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <strong>${data.nickname}</strong> <small>${date}</small>
+                            </div>
                         </div>
-                    <button onclick="deleteMessage(${msg.id})" class="delete-msg-btn">삭제</button>
-                </div>
-                <p>${msg.text}</p>
-            </div>
-        `).join('');
-}
+                        <p>${data.content}</p>
+                    </div>
+                `;
+            });
+        });
     </script>
 </body>
 </html>
