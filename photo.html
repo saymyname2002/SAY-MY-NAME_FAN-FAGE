@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>SAY MY NAME - PHOTO GALLERY</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">EggRoll</div>
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="board.html">BOARD</a></li>
+                <li><a href="game.html">GAME</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="photo-page">
+        <section id="member-select-view">
+            <h2>최애 멤버를 선택해 주세요!</h2>
+            <div class="member-grid">
+                <div class="member-card hitomi" onclick="openMemberGallery('HITOMI')">HITOMI</div>
+                <div class="member-card shuie" onclick="openMemberGallery('SHUIE')">SHUIE</div>
+                <div class="member-card mei" onclick="openMemberGallery('MEI')">MEI</div>
+                <div class="member-card kanny" onclick="openMemberGallery('KANNY')">KANNY</div>
+                <div class="member-card soha" onclick="openMemberGallery('SOHA')">SOHA</div>
+                <div class="member-card dohee" onclick="openMemberGallery('DOHEE')">DOHEE</div>
+                <div class="member-card junhwi" onclick="openMemberGallery('JUNHWI')">JUNHWI</div>
+                <div class="member-card seungjoo" onclick="openMemberGallery('SEUNGJOO')">SEUNGJOO</div>
+            </div>
+            <button class="view-all-btn" onclick="openMemberGallery('ALL')">전체 사진 보기</button>
+        </section>
+
+        <section id="gallery-view" style="display:none;">
+            <h2 id="gallery-title">MEMBER NAME</h2>
+            <div id="upload-form" class="upload-section">
+                <input type="text" id="nicknameInput" placeholder="닉네임" maxlength="10">
+                <input type="file" id="imageInput" accept="image/*">
+                <button onclick="uploadPhoto()">사진 등록</button>
+            </div>
+
+            <div id="photo-grid" class="photo-grid"></div>
+            <button class="back-btn" onclick="showMemberSelect()">뒤로 가기</button>
+        </section>
+    </main>
+
+    <script>
+        let currentMember = 'ALL';
+const memberOrder = ['HITOMI', 'SHUIE', 'MEI', 'KANNY', 'SOHA', 'DOHEE', 'JUNHWI', 'SEUNGJOO'];
+
+// 멤버별 색상 매핑 (공통 사용)
+const memberColors = {
+    'HITOMI': '#f6f07b',
+    'SHUIE': '#cca9dd',
+    'MEI': '#f2afce',
+    'KANNY': '#de3b60',
+    'SOHA': '#f47c50',
+    'DOHEE': '#f0f0f0',
+    'JUNHWI': '#464153',
+    'SEUNGJOO': '#bcddc4'
+};
+
+function showMemberSelect() {
+    document.getElementById('member-select-view').style.display = 'block';
+    document.getElementById('gallery-view').style.display = 'none';
+}
+
+function openMemberGallery(member) {
+    currentMember = member;
+    const uploadForm = document.getElementById('upload-form');
+    
+    document.getElementById('member-select-view').style.display = 'none';
+    document.getElementById('gallery-view').style.display = 'block';
+    document.getElementById('gallery-title').innerText = member === 'ALL' ? "SAY MY NAME PHOTO" : member + " GALLERY";
+
+    if (member === 'ALL') {
+        uploadForm.style.display = 'none';
+    } else {
+        uploadForm.style.display = 'block';
+        uploadForm.className = 'upload-section'; 
+        uploadForm.classList.add('bg-' + member.toLowerCase());
+    }
+    displayPhotos();
+}
+
+function uploadPhoto() {
+    const fileInput = document.getElementById('imageInput');
+    const nickInput = document.getElementById('nicknameInput'); // 닉네임 필드 가져오기
+
+    if (!nickInput.value.trim()) { alert("닉네임을 입력해주세요!"); return; } // 닉네임 확인
+    if (!fileInput.files[0]) { alert("사진을 선택해주세요!"); return; }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const photoData = {
+            id: Date.now(),
+            member: currentMember,
+            src: e.target.result,
+            nickname: nickInput.value.trim() // [추가] 닉네임 저장
+        };
+        let photos = JSON.parse(localStorage.getItem('saymyname_photos')) || [];
+        photos.push(photoData);
+        localStorage.setItem('saymyname_photos', JSON.stringify(photos));
+        
+        displayPhotos();
+        fileInput.value = "";
+        nickInput.value = ""; // 입력창 초기화
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+}
+
+// [중요] 삭제 버튼과 색상 기능이 통합된 displayPhotos
+function displayPhotos() {
+    const grid = document.getElementById('photo-grid');
+    let photos = JSON.parse(localStorage.getItem('saymyname_photos')) || [];
+    
+    if (currentMember === 'ALL') {
+        photos.sort((a, b) => memberOrder.indexOf(a.member) - memberOrder.indexOf(b.member));
+    } else {
+        photos = photos.filter(p => p.member === currentMember);
+    }
+
+    grid.innerHTML = photos.map(p => {
+    const bgColor = memberColors[p.member] || '#ee9ca7';
+    const textColor = (p.member === 'DOHEE') ? '#333' : 'white';
+
+    return `
+        <div class="photo-card">
+            <img src="${p.src}">
+            <div class="tag" style="background-color: ${bgColor}; color: ${textColor};">
+                ${p.member}
+            </div>
+            <div class="uploader-name">By. ${p.nickname || '익명'}</div> 
+            <button class="delete-btn" onclick="deletePhoto(${p.id})">×</button>
+        </div>
+    `;
+}).join('');
+}
+
+function deletePhoto(id) {
+    if (confirm("이 사진을 삭제하시겠습니까?")) {
+        let photos = JSON.parse(localStorage.getItem('saymyname_photos')) || [];
+        photos = photos.filter(p => p.id !== id);
+        localStorage.setItem('saymyname_photos', JSON.stringify(photos));
+        displayPhotos();
+    }
+}
+    </script>
+</body>
+</html>

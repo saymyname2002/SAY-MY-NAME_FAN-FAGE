@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>세마넴을 피해라! - SAY MY NAME</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #gameCanvas {
+            background: #fffafb; /* 팬 페이지 톤에 맞춘 배경 */
+            display: block;
+            margin: 0 auto;
+            border: 2px solid #ee9ca7;
+            cursor: none; /* 마우스 대신 캐릭터가 보이기 위함 */
+        }
+        .game-info { text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">EggRoll</div>
+                <audio id="bgm" loop>
+                <source src="music/UFO (ATTENT!ON).mp3" type="audio/mpeg">
+            </audio>
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="board.html">BOARD</a></li>
+                <li><a href="photo.html">PHOTO</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="game-info">
+            <h2>멤버들의 사랑(?)을 피해보세요!</h2>
+            <p id="score">Score: 0</p> 
+        </div>
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+    </main>
+
+    <script src="game.js"></script>
+</body>
+</html>

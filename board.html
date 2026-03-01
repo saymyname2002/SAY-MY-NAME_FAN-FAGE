@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAY MY NAME - FAN BOARD</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="background-color: #fffafb;">
+    <header>
+        <nav>
+            <div class="logo">EggRoll</div>
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="photo.html">PHOTO</a></li>
+                <li><a href="game.html">GAME</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="board">
+            <h2>FAN BOARD</h2>
+            <p>SAY MY NAME에게 응원의 한마디를 남겨주세요!</p>
+            <div class="board-container">
+                <div class="message-form">
+                    <input type="text" id="nickname" placeholder="닉네임">
+                    <textarea id="message" placeholder="응원 메시지를 입력하세요!"></textarea>
+                    <button onclick="addMessage()">등록하기</button>
+                </div>
+                <div id="message-list" class="message-list"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        window.onload = function() { displayMessages(); };
+
+        function addMessage() {
+            const nickname = document.getElementById('nickname').value || "익명";
+            const message = document.getElementById('message').value;
+            if (!message) { alert("내용을 입력해주세요!"); return; }
+
+            const newMessage = {
+                id: Date.now(),
+                name: nickname,
+                text: message,
+                date: new Date().toLocaleString()
+            };
+
+            let messages = JSON.parse(localStorage.getItem('saymyname_messages')) || [];
+            messages.unshift(newMessage);
+            localStorage.setItem('saymyname_messages', JSON.stringify(messages));
+
+            document.getElementById('nickname').value = '';
+            document.getElementById('message').value = '';
+            displayMessages();
+        }
+        // [추가] 메시지 삭제 함수
+        function deleteMessage(id) {
+            if (!confirm("메시지를 삭제하시겠습니까?")) return;
+
+            let messages = JSON.parse(localStorage.getItem('saymyname_messages')) || [];
+            // 클릭한 ID와 일치하지 않는 메시지들만 남깁니다 (필터링)
+            messages = messages.filter(msg => msg.id !== id);
+    
+            localStorage.setItem('saymyname_messages', JSON.stringify(messages));
+            displayMessages(); // 화면 갱신
+}            
+        function displayMessages() {
+            const list = document.getElementById('message-list');
+            const messages = JSON.parse(localStorage.getItem('saymyname_messages')) || [];
+    
+            // [수정] 삭제 버튼(<button>) 코드를 추가했습니다.
+            list.innerHTML = messages.map(msg => `
+                <div class="message-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <strong>${msg.name}</strong> <small>${msg.date}</small>
+                        </div>
+                    <button onclick="deleteMessage(${msg.id})" class="delete-msg-btn">삭제</button>
+                </div>
+                <p>${msg.text}</p>
+            </div>
+        `).join('');
+}
+    </script>
+</body>
+</html>
