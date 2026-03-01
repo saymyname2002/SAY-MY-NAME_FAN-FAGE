@@ -1,9 +1,20 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// [추가] 배경음악 설정
+// [기존 코드] 배경음악 설정
 const bgm = document.getElementById("bgm");
-bgm.volume = 0.5; // 볼륨 50%
+bgm.volume = 0.5; 
+
+// [추가] 볼륨 조절 기능
+const volumeRange = document.getElementById("volumeRange");
+const volumeValue = document.getElementById("volumeValue");
+
+// 슬라이더 값이 바뀔 때마다 실행됨
+volumeRange.addEventListener("input", (e) => {
+    const vol = e.target.value;
+    bgm.volume = vol; // 실제 음악 볼륨 조절
+    volumeValue.innerText = `${Math.round(vol * 100)}%`; // 화면에 숫자 표시
+});
 
 // 1. 이미지 로드 체크 (멤버 + 플레이어)
 const memberImagePaths = [
@@ -220,5 +231,3 @@ function drawStart() {
 // 초기 호출
 
 drawStart();
-
-
