@@ -132,7 +132,7 @@ nav a {
 }
 
 .message-form button {
-    background: #ee9ca7;
+    background: #53d4b4;
     color: white;
     border: none;
     padding: 12px;
@@ -155,12 +155,53 @@ nav a {
     gap: 15px;
 }
 
+/* --- 메시지 카드 기본 스타일 --- */
 .message-card {
     background: white;
     padding: 15px;
-    border-left: 5px solid #ee9ca7;
-    border-radius: 5px;
+    border-radius: 8px; /* 조금 더 둥글게 변경 */
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+/* --- 멤버별 고유 컬러 정의 --- */
+/* HITOMI: 노랑 */
+.message-card.hitomi { border-left: 5px solid #f6f07b; }
+.message-card.hitomi .member-name { color: #d4cc00; }
+
+/* SHUIE: 보라 */
+.message-card.shuie { border-left: 5px solid #cca9dd; }
+.message-card.shuie .member-name { color: #9b6ab3; }
+
+/* MEI: 핑크 */
+.message-card.mei { border-left: 5px solid #f2afce; }
+.message-card.mei .member-name { color: #e577ab; }
+
+/* KANNY: 빨강/체리 */
+.message-card.kanny { border-left: 5px solid #de3b60; }
+.message-card.kanny .member-name { color: #de3b60; }
+
+/* SOHA: 주황 */
+.message-card.soha { border-left: 5px solid #f47c50; }
+.message-card.soha .member-name { color: #f47c50; }
+
+/* DOHEE: 흰색/연회색 (배경이 밝으므로 테두리만) */
+.message-card.dohee { border-left: 5px solid #d1d1d1; }
+.message-card.dohee .member-name { color: #666; }
+
+/* JUNHWI: 진한 회색/남색 */
+.message-card.junhwi { border-left: 5px solid #464153; }
+.message-card.junhwi .member-name { color: #464153; }
+
+/* SEUNGJOO: 민트/연두 */
+.message-card.seungjoo { border-left: 5px solid #bcddc4; }
+.message-card.seungjoo .member-name { color: #7ab88a; }
+
+/* 기존 strong 스타일 수정 (색상을 개별 지정하기 위함) */
+.message-card .member-name {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
 }
 
 .message-card strong {
@@ -177,30 +218,6 @@ nav a {
 .message-card p {
     margin: 10px 0 0;
 }
-
-/* 메시지 삭제 버튼 스타일 */
-.delete-msg-btn {
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 11px;
-    cursor: pointer;
-    transition: 0.2s;
-    opacity: 0.7;
-}
-
-.delete-msg-btn:hover {
-    opacity: 1;
-    background-color: #d32f2f;
-}
-
-/* 메시지 카드의 레이아웃을 위해 상단 여백 조절 */
-.message-card strong {
-    margin-bottom: 2px;
-}
-
 
 /*==================================================================*/
 /* 사진 페이지 레이아웃(photo) */
