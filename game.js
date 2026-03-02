@@ -21,9 +21,18 @@ const rankCol = collection(db, "rankings"); // 게임용은 'rankings' 컬렉션
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// [기존 코드] 배경음악 설정
+// [수정] 배경음악 설정
 const bgm = document.getElementById("bgm");
-bgm.volume = 0.5; 
+const bgmSources = bgm.getElementsByTagName("source"); // HTML에 넣은 노래 목록들
+bgm.volume = 0.5;
+
+// [추가] 랜덤으로 노래를 선택하는 함수
+function playRandomBGM() {
+    const randomIndex = Math.floor(Math.random() * bgmSources.length);
+    bgm.src = bgmSources[randomIndex].src; // 랜덤하게 선택된 경로를 적용
+    bgm.load(); // 새로운 곡 로드
+    bgm.play(); // 재생
+} 
 
 // [추가] 볼륨 조절 기능
 const volumeRange = document.getElementById("volumeRange");
@@ -89,20 +98,7 @@ canvas.addEventListener("click", () => {
     if (!gameStarted) {
         gameStarted = true;
         gameOver = false;
-        bgm.play(); // [추가] 처음 시작할 때 음악 재생
-        requestAnimationFrame(update);
-    } else if (gameOver) {
-        resetGame();
-    }
-});
-
-// 클릭 시 시작/재시작 (기존과 동일)
-canvas.addEventListener("click", () => {
-    if (loadedImages < memberImagePaths.length || !playerLoaded) return; 
-    
-    if (!gameStarted) {
-        gameStarted = true;
-        gameOver = false;
+        playRandomBGM();
         requestAnimationFrame(update);
     } else if (gameOver) {
         resetGame();
@@ -227,10 +223,14 @@ function resetGame() {
     spawnRate = 0.02;
     document.getElementById("score").innerText = `Score: 0`;
 
-    // 다시 게임을 시작하므로 순위판을 다시 숨깁니다.
+    // 순위판 숨기기
     document.querySelector(".ranking-board").style.display = "none";
     
-    bgm.play(); // 재시작 시 음악 다시 재생
+    // [수정] 노래를 멈췄다가 다시 선택해서 재생
+    bgm.pause();
+    bgm.currentTime = 0;
+    playRandomBGM(); 
+    
     requestAnimationFrame(update);
 }
 
@@ -290,3 +290,6 @@ function loadRankings() {
 
 // 시작할 때 랭킹판 불러오기
 loadRankings();
+
+// 노래가 끝나면 자동으로 다른 랜덤 노래 재생
+bgm.addEventListener('ended', playRandomBGM);
