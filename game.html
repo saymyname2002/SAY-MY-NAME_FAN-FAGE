@@ -5,20 +5,70 @@
     <title>세마넴을 피해라! - SAY MY NAME</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        #gameCanvas {
-            background: #fffafb; /* 팬 페이지 톤에 맞춘 배경 */
-            display: block;
-            margin: 0 auto;
-            border: 2px solid #ee9ca7;
-            cursor: none; /* 마우스 대신 캐릭터가 보이기 위함 */
-        }
-        .game-info { text-align: center; margin-top: 20px; }
-        /* 처음에는 순위판을 보이지 않게 설정 */
-        .ranking-board {
-            display: none; /* 이 코드가 핵심입니다 */
-            width: 300px;
-            margin: 20px auto;
-        }
+/* 부모 컨테이너: 캔버스와 랭킹보드를 가로로 배치 */
+.game-wrapper {
+    display: flex;
+    justify-content: center; /* 중앙 정렬 */
+    align-items: flex-start; /* 위쪽 라인 맞춤 */
+    gap: 20px; /* 캔버스와 랭킹보드 사이 간격 */
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+#gameCanvas {
+    background: #fffafb;
+    border: 2px solid #ee9ca7;
+    cursor: none;
+    flex-shrink: 0; /* 캔버스 크기 고정 */
+}
+
+/* 랭킹보드: 항상 보이도록 설정하고 스타일 조정 */
+.ranking-board {
+    display: block; /* display: none 삭제 */
+    width: 250px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid #ee9ca7;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.ranking-board h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #000000;
+    text-align: center;
+}
+
+#rankList {
+    list-style: none;
+    padding: 0;
+}
+
+#rankList li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+}
+
+/* 상단 제목 및 점수 중앙 정렬 */
+.game-info {
+    text-align: center; /* 텍스트 중앙 정렬 */
+    margin-top: 0px;
+    margin-bottom: 20px;
+    width: 100%; /* 전체 너비를 차지하게 하여 중앙 기준점 확보 */
+}
+
+.game-info h2 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+#score {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #000000;
+}
     </style>
 </head>
 <body>
