@@ -1,3 +1,23 @@
+// 1. Firebase 라이브러리 불러오기 (게임에 필요한 것들로 정리)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// 2. 본인의 Firebase 설정 (photo.js에 있는 것과 동일)
+const firebaseConfig = {
+    apiKey: "AIzaSyBrhP_DPagVEzILp5MftnZXN5m1nJD3qgg",
+    authDomain: "saymyname-fanpage.firebaseapp.com",
+    projectId: "saymyname-fanpage",
+    storageBucket: "saymyname-fanpage.firebasestorage.app",
+    messagingSenderId: "613226162204",
+    appId: "1:613226162204:web:641483775d9fad18cf57d9",
+    measurementId: "G-XTHQ805VV9"
+};
+
+// 3. Firebase 초기화 및 컬렉션 연결
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const rankCol = collection(db, "rankings"); // 게임용은 'rankings' 컬렉션 사용
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -177,8 +197,11 @@ function endGame() {
     gameOver = true;
     cancelAnimationFrame(animationId);
     
-    bgm.pause(); // [추가] 게임 오버 시 음악 일시정지
-    bgm.currentTime = 0; // [추가] 음악을 다시 처음으로 되돌림
+    bgm.pause(); // 게임 오버 시 음악 일시정지
+    bgm.currentTime = 0; // 음악을 다시 처음으로 되돌림
+
+    // 게임이 끝났으므로 숨겨져 있던 순위판을 보여줍니다.
+    document.querySelector(".ranking-board").style.display = "block";
 
     // 튕김 방지: 화면을 먼저 그린 후 팝업 띄우기
     ctx.fillStyle = "rgba(0,0,0,0.7)";
@@ -203,8 +226,11 @@ function resetGame() {
     members = [];
     spawnRate = 0.02;
     document.getElementById("score").innerText = `Score: 0`;
+
+    // 다시 게임을 시작하므로 순위판을 다시 숨깁니다.
+    document.querySelector(".ranking-board").style.display = "none";
     
-    bgm.play(); // [추가] 재시작 시 음악 다시 재생
+    bgm.play(); // 재시작 시 음악 다시 재생
     requestAnimationFrame(update);
 }
 
@@ -231,3 +257,36 @@ function drawStart() {
 // 초기 호출
 
 drawStart();
+
+// [기능] 점수 저장하기 (이미 성훈님 endGame에서 호출 중)
+window.saveRank = async (name, score) => {
+    try {
+        await addDoc(rankCol, {
+            name: name,
+            score: Number(score), // 숫자로 저장해야 정렬이 잘 됨
+            timestamp: serverTimestamp()
+        });
+    } catch (e) {
+        console.error("저장 실패:", e);
+    }
+};
+
+// [기능] 실시간 랭킹 불러오기
+function loadRankings() {
+    // 점수 높은 순으로 10개만 감시
+    const q = query(rankCol, orderBy("score", "desc"), limit(10));
+
+    onSnapshot(q, (snapshot) => {
+        const rankList = document.getElementById("rankList");
+        if (!rankList) return;
+        rankList.innerHTML = ""; 
+
+        snapshot.docs.forEach((doc, index) => {
+            const data = doc.data();
+            rankList.innerHTML += `<li><strong>${index + 1}위</strong> ${data.name} : ${data.score}점</li>`;
+        });
+    });
+}
+
+// 시작할 때 랭킹판 불러오기
+loadRankings();
