@@ -474,3 +474,61 @@ nav a {
     border: 1px solid #ddd;
     border-radius: 6px;
 }
+
+/* 메인 사진이 화면 밖으로 나가는 것 방지 */
+.main-photo img, 
+section img {
+    max-width: 100% !important; /* 화면 가로폭을 절대 넘지 않음 */
+    height: auto !important;     /* 비율에 맞춰 높이 조절 */
+    display: block;
+    margin: 0 auto;             /* 중앙 정렬 */
+}
+
+@media screen and (max-width: 768px) {
+    nav {
+        padding: 10px;
+        justify-content: space-between; /* 로고는 왼쪽, 메뉴는 오른쪽 */
+    }
+    
+    nav ul {
+        gap: 10px; /* 메뉴 사이 간격 줄임 */
+    }
+
+    nav a {
+        font-size: 14px; /* 모바일 전용 글자 크기 */
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .member-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr) !important; /* 무조건 한 줄에 2개 */
+        gap: 10px;
+        padding: 0 10px;
+    }
+
+    .member-card {
+        padding: 15px 5px !important; /* 안쪽 여백 줄여서 글자 안 잘리게 */
+        font-size: 12px;
+        margin: 0; /* 마진 때문에 밀리는 것 방지 */
+    }
+}
+
+@media screen and (max-width: 768px) {
+    /* 게임 화면 컨테이너를 세로 정렬로 변경 */
+    .game-wrapper { 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    canvas {
+        width: 100% !important; /* 캔버스 가로를 화면에 맞춤 */
+        height: auto !important;
+    }
+
+    .ranking-box {
+        width: 90% !important;
+        margin-top: 20px;
+    }
+}
