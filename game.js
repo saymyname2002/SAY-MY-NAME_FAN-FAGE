@@ -26,13 +26,28 @@ const bgm = document.getElementById("bgm");
 const bgmSources = bgm.getElementsByTagName("source"); // HTML에 넣은 노래 목록들
 bgm.volume = 0.5;
 
-// [추가] 랜덤으로 노래를 선택하는 함수
+// [수정] 재생 목록 관리용 변수
+let playlist = []; 
+
 function playRandomBGM() {
-    const randomIndex = Math.floor(Math.random() * bgmSources.length);
-    bgm.src = bgmSources[randomIndex].src; // 랜덤하게 선택된 경로를 적용
-    bgm.load(); // 새로운 곡 로드
-    bgm.play(); // 재생
-} 
+    // 1. 만약 플레이리스트가 비어있다면(처음 시작하거나 모든 곡을 다 들었을 때), 목록을 새로 채웁니다.
+    if (playlist.length === 0) {
+        playlist = Array.from(bgmSources).map(source => source.src);
+        // 2. 목록을 랜덤하게 섞습니다 (피셔-예이츠 셔플 알고리즘)
+        for (let i = playlist.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
+        }
+    }
+
+    // 3. 목록에서 맨 앞의 한 곡을 꺼내서 재생합니다.
+    const nextSrc = playlist.shift(); 
+    bgm.src = nextSrc;
+    bgm.load();
+    
+    // 브라우저 정책상 사용자 인터랙션(클릭) 후에만 play()가 확실히 작동합니다.
+    bgm.play().catch(e => console.log("자동 재생 대기 중...")); 
+}
 
 // [추가] 볼륨 조절 기능
 const volumeRange = document.getElementById("volumeRange");
@@ -180,7 +195,7 @@ function update() {
         members.push(createMember());
     }
     // 난이도 상승 (생성 빈도 증가)
-    spawnRate += 0.000001; 
+    spawnRate += 0.000002; 
 
     // 2. 장애물 이동 및 그리기 (중첩 루프를 하나로 합침)
     for (let i = members.length - 1; i >= 0; i--) {
@@ -252,7 +267,7 @@ function resetGame() {
     score = 0;
     gameOver = false;
     members = [];
-    spawnRate = 0.02;
+    spawnRate = 0.01;
     document.getElementById("score").innerText = `Score: 0`;
     
     // [수정] 노래를 멈췄다가 다시 선택해서 재생
@@ -287,7 +302,7 @@ function drawStart() {
 
 drawStart();
 
-// [기능] 점수 저장하기 (이미 성훈님 endGame에서 호출 중)
+// [기능] 점수 저장하기 (endGame에서 호출 중)
 window.saveRank = async (name, score) => {
     try {
         await addDoc(rankCol, {
